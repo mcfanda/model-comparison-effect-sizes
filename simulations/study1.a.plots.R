@@ -3,7 +3,7 @@
   library(gzlmpower)
 
 load(file = "simulations/Data/study1.a.data.Rdata")   # -> `results`
-source("simulations/theoretical_power.R")
+source("simulations/functions.R")
 source("simulations/plot_helpers.R")   # to_long(), stack_by_model(), row_theme, model_labels
 
 ## computes the theoretical power

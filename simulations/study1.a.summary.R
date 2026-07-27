@@ -1,7 +1,7 @@
 suppressMessages(library(gzlmpower))
 
 load(file = "simulations/Data/study1.a.data.Rdata")   # -> `results`
-source("simulations/theoretical_power.R")
+source("simulations/functions.R")
 
 model_labels <- c(gaussian = "Gaussian", logistic = "Logistic",
                    multinomial = "Multinomial", ordinal = "Ordinal")

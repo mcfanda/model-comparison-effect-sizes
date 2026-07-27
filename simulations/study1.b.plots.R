@@ -3,14 +3,14 @@
   library(gzlmpower)
 
 load(file = "simulations/Data/study1.b.data.Rdata")   # -> `results`
-source("simulations/theoretical_power.R")
+source("simulations/functions.R")
 source("simulations/plot_helpers.R")   # to_long(), stack_by_model(), row_theme, model_labels
 
 ## ------------------------------------------------------------------------
 ## Closed-form ("theoretical") power for each design cell, computed by
 ## plugging the cell's own MEAN raw estimate (eeta2) or MEAN adjusted estimate
 ## (aeeta2) into the power formula for the focal predictor's own test df
-## (1, or yl-1=2 for multinomial -- see focal_df() in theoretical_power.R),
+## (1, or yl-1=2 for multinomial -- see focal_df() in functions.R),
 ## not the whole model's df as in Study 1a. Compared against the "Actual"
 ## column already in `results` (the empirical proportion of significant
 ## per-predictor LR tests).
