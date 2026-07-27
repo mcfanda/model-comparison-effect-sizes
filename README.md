@@ -24,16 +24,17 @@ partial versions for individual predictors, and their use in power analysis.
     single-predictor test (`.b`), compared against the closed-form estimate.
   - `study2.plots.R` — Figure comparing simulated vs. closed-form required N.
   - `functions.R`, `plot_helpers.R` — shared helper functions used across the
-    scripts above.
-  - `theoretical_power.R` — closed-form power calculations used as the
-    benchmark against which the simulations are compared.
+    scripts above, including the closed-form power calculations
+    (`theoretical_power()`) used as the benchmark against which the
+    simulations are compared.
   - `Data/` — saved simulation results (`.Rdata`/`.csv`).
   - `Figures/` — supporting figures not reproduced from `Data/` above.
-- **`supplementary/`** — self-contained supplementary material. In
-  particular, `supplementary_code_logistic_r2.Rmd` reproduces the paper's
-  Gauss-Hermite quadrature calibration method for the logistic model from
-  scratch, independent of the `Rsimcity` package, so it can be followed and
-  run without installing it.
+- **`supplementary/`** — self-contained supplementary material
+  (`supplementary_material.Rmd`): a from-scratch reproduction of the paper's
+  Gauss-Hermite quadrature calibration method for the logistic model,
+  independent of the `Rsimcity` package, so it can be followed and run
+  without installing it; plus full results tables for the data plotted in
+  the paper's figures.
 
 ## Dependencies
 

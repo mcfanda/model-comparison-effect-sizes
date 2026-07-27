@@ -99,3 +99,94 @@ dat3 <- sample_logistic_r2(n = 5000, R2 = .20, k = 3, x_cov = Sigma, seed = 1)
 mod3 <- glm(y ~ x1 + x2 + x3, data = dat3, family = binomial())
 1 - mod3$deviance / mod3$null.deviance   # close to the .20 target
 ```
+
+## Simulation results tables
+
+The figures in the main text plot the results of Study 1 (recovery of the whole-model
+R^2^ and of a single focal predictor's eta-squared) and Study 2 (simulation-based
+required sample size). The tables below report, in full, the same numbers shown in
+those figures.
+
+```{r results-setup, include=FALSE}
+library(kableExtra)
+source("../simulations/functions.R")   # theoretical_power(), focal_df(), model_labels
+
+load("../simulations/Data/study1.a.data.Rdata")   # -> `results` (Study 1a, R^2 design)
+study1a <- results
+
+load("../simulations/Data/study1.b.data.Rdata")   # -> `results` (Study 1b, eta^2 design)
+study1b <- results
+
+e <- new.env(); load("../simulations/Data/study2.a.data.Rdata", envir = e); study2a <- e$results
+e <- new.env(); load("../simulations/Data/study2.b.data.Rdata", envir = e); study2b <- e$results
+
+study1a$power_r2    <- mapply(theoretical_power, study1a$er2,  study1a$N, study1a$k, study1a$model)
+study1a$power_adjr2 <- mapply(theoretical_power, study1a$aer2, study1a$N, study1a$k, study1a$model)
+
+study1b$df_test <- sapply(study1b$model, focal_df)
+suppressMessages({
+  study1b$power_eta2    <- mapply(theoretical_power, study1b$eeta2,  study1b$N, study1b$k, study1b$model, study1b$df_test)
+  study1b$power_adjeta2 <- mapply(theoretical_power, study1b$aeeta2, study1b$N, study1b$k, study1b$model, study1b$df_test)
+})
+
+long_table <- function(data, cols, names, order_cols, digits, caption) {
+  data$Model <- model_labels[data$model]
+  tab <- data[do.call(order, data[, c("Model", order_cols)]), c("Model", cols)]
+  colnames(tab) <- c("Model", names)
+  rownames(tab) <- NULL
+  kbl(tab, digits = digits, booktabs = TRUE, longtable = TRUE, caption = caption) %>%
+    kable_styling(latex_options = c("repeat_header", "hold_position"), font_size = 8)
+}
+```
+
+### Study 1a: accuracy of R^2^ (data underlying Figure 1)
+
+```{r table-figure1, echo=FALSE}
+long_table(study1a, c("N", "r2", "er2", "aer2"),
+           c("N", "Population R2", "R2", "Adjusted R2"),
+           order_cols = c("N", "r2"), digits = 3,
+           caption = "Estimated R2 and adjusted R2 vs. population R2, by model and sample size.")
+```
+
+### Study 1a: power of the omnibus test (data underlying Figure 3)
+
+```{r table-figure3, echo=FALSE}
+long_table(study1a, c("N", "r2", "power", "power_r2", "power_adjr2"),
+           c("N", "Population R2", "Power (Actual)", "Power (R2)", "Power (Adjusted R2)"),
+           order_cols = c("N", "r2"), digits = 3,
+           caption = "Simulated power vs. closed-form power (from mean R2/adjusted R2), by model and sample size.")
+```
+
+### Study 1b: accuracy of eta-squared (data underlying Figure 2)
+
+```{r table-figure2, echo=FALSE}
+long_table(study1b, c("N", "eta2", "eeta2", "aeeta2"),
+           c("N", "Population Eta2", "Eta2", "Epsilon2"),
+           order_cols = c("N", "eta2"), digits = 3,
+           caption = "Estimated eta-squared and adjusted epsilon-squared vs. population eta-squared, by model and sample size.")
+```
+
+### Study 1b: power of the single-predictor test (data underlying Figure 4)
+
+```{r table-figure4, echo=FALSE}
+long_table(study1b, c("N", "eta2", "power", "power_eta2", "power_adjeta2"),
+           c("N", "Population Eta2", "Power (Actual)", "Power (Eta2)", "Power (Epsilon2)"),
+           order_cols = c("N", "eta2"), digits = 3,
+           caption = "Simulated power vs. closed-form power (from mean eta-squared/epsilon-squared), by model and sample size.")
+```
+
+### Study 2: required sample size (data underlying Figure 5)
+
+```{r table-figure5-omnibus, echo=FALSE}
+long_table(study2a, c("r2", "N", "Nt"),
+           c("Population R2", "Required N (Simulated)", "Required N (Closed-form)"),
+           order_cols = "r2", digits = 3,
+           caption = "Required sample size for 80\\% power, omnibus test: simulated vs. closed-form.")
+```
+
+```{r table-figure5-individual, echo=FALSE}
+long_table(study2b, c("eta2", "N", "Nt"),
+           c("Population Eta2", "Required N (Simulated)", "Required N (Closed-form)"),
+           order_cols = "eta2", digits = 3,
+           caption = "Required sample size for 80\\% power, single-predictor test: simulated vs. closed-form.")
+```
