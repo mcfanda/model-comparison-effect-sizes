@@ -131,6 +131,8 @@ long_table(study2b, c("eta2", "N", "Nt"),
            caption = "Required sample size for 80\\% power, single-predictor test: simulated vs. closed-form.")
 ```
 
+\newpage
+
 ## Supplementary code: generating a logistic-regression sample with a known population R-squared
 
 ### Purpose
