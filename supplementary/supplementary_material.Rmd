@@ -14,8 +14,12 @@ knitr::opts_chunk$set(echo = TRUE)
 
 The figures in the main text plot the results of Study 1 (recovery of the whole-model
 R^2^ and of a single focal predictor's eta-squared) and Study 2 (simulation-based
-required sample size). The tables below report, in full, the same numbers shown in
-those figures.
+required sample size). For Study 1, each Model x N combination in the figures is a curve
+over 16 population effect size values; the tables below summarize accuracy and power
+collapsed across those 16 values (mean absolute bias, RMSE, and mean power gap, by model
+and sample size), rather than reproducing every plotted point -- the full per-point
+results are available in this repository's `simulations/Data/` folder. For Study 2, which
+has no sample-size dimension, the tables report the full underlying data.
 
 ```{r results-setup, include=FALSE}
 library(kableExtra)
@@ -48,42 +52,67 @@ long_table <- function(data, cols, names, order_cols, digits, caption) {
       linesep = c(rep("", 7), "\\addlinespace")) %>%
     kable_styling(latex_options = c("repeat_header", "hold_position"), font_size = 8)
 }
+
+## Collapse a Study 1 data set across its 16 population-effect-size values, giving one
+## row per Model x N cell -- 16 rows total, vs. 256 in the full per-point data.
+agg_table <- function(data, formula, names, digits, caption) {
+  data$model_label <- model_labels[data$model]
+  tab <- aggregate(formula, data = data, FUN = mean)
+  tab <- tab[order(tab$model_label, tab$N), ]
+  colnames(tab) <- c("Model", "N", names)
+  rownames(tab) <- NULL
+  kbl(tab, digits = digits, booktabs = TRUE, longtable = TRUE, caption = caption,
+      linesep = c(rep("", 3), "\\addlinespace")) %>%
+    kable_styling(latex_options = c("repeat_header", "hold_position"), font_size = 9)
+}
+
+study1a$power_gap_r2    <- abs(study1a$power_r2    - study1a$power)
+study1a$power_gap_adjr2 <- abs(study1a$power_adjr2 - study1a$power)
+
+study1b$power_gap_eta2 <- abs(study1b$power_eta2    - study1b$power)
+study1b$power_gap_eps2 <- abs(study1b$power_adjeta2 - study1b$power)
 ```
 
-### Study 1a: accuracy of R^2^ (data underlying Figure 1)
+### Study 1a: accuracy of R^2^ (collapsed summary of Figure 1)
 
 ```{r table-figure1, echo=FALSE}
-long_table(study1a, c("N", "r2", "er2", "aer2"),
-           c("N", "Population R2", "R2", "Adjusted R2"),
-           order_cols = c("N", "r2"), digits = 3,
-           caption = "Estimated R2 and adjusted R2 vs. population R2, by model and sample size.")
+agg_table(study1a,
+          cbind(abs_bias_r2 = abs(bias), rmse_r2 = rmse,
+                abs_bias_adjr2 = abs(abias), rmse_adjr2 = armse) ~ model_label + N,
+          c("Mean |Bias| (R2)", "RMSE (R2)", "Mean |Bias| (Adjusted R2)", "RMSE (Adjusted R2)"),
+          digits = 3,
+          caption = "Accuracy of R2 and adjusted R2, collapsed across population R2 (data underlying Figure 1).")
 ```
 
-### Study 1a: power of the omnibus test (data underlying Figure 3)
+### Study 1a: power of the omnibus test (collapsed summary of Figure 3)
 
 ```{r table-figure3, echo=FALSE}
-long_table(study1a, c("N", "r2", "power", "power_r2", "power_adjr2"),
-           c("N", "Population R2", "Power (Actual)", "Power (R2)", "Power (Adjusted R2)"),
-           order_cols = c("N", "r2"), digits = 3,
-           caption = "Simulated power vs. closed-form power (from mean R2/adjusted R2), by model and sample size.")
+agg_table(study1a,
+          cbind(power_gap_r2, power_gap_adjr2) ~ model_label + N,
+          c("Mean Power Gap (R2)", "Mean Power Gap (Adjusted R2)"),
+          digits = 3,
+          caption = "Mean |simulated - closed-form| power for R2 and adjusted R2, collapsed across population R2 (data underlying Figure 3).")
 ```
 
-### Study 1b: accuracy of eta-squared (data underlying Figure 2)
+### Study 1b: accuracy of eta-squared (collapsed summary of Figure 2)
 
 ```{r table-figure2, echo=FALSE}
-long_table(study1b, c("N", "eta2", "eeta2", "aeeta2"),
-           c("N", "Population Eta2", "Eta2", "Epsilon2"),
-           order_cols = c("N", "eta2"), digits = 3,
-           caption = "Estimated eta-squared and adjusted epsilon-squared vs. population eta-squared, by model and sample size.")
+agg_table(study1b,
+          cbind(abs_bias_eta2 = abs(bias), rmse_eta2 = rmse,
+                abs_bias_eps2 = abs(abias), rmse_eps2 = armse) ~ model_label + N,
+          c("Mean |Bias| (Eta2)", "RMSE (Eta2)", "Mean |Bias| (Epsilon2)", "RMSE (Epsilon2)"),
+          digits = 3,
+          caption = "Accuracy of eta-squared and adjusted epsilon-squared, collapsed across population eta-squared (data underlying Figure 2).")
 ```
 
-### Study 1b: power of the single-predictor test (data underlying Figure 4)
+### Study 1b: power of the single-predictor test (collapsed summary of Figure 4)
 
 ```{r table-figure4, echo=FALSE}
-long_table(study1b, c("N", "eta2", "power", "power_eta2", "power_adjeta2"),
-           c("N", "Population Eta2", "Power (Actual)", "Power (Eta2)", "Power (Epsilon2)"),
-           order_cols = c("N", "eta2"), digits = 3,
-           caption = "Simulated power vs. closed-form power (from mean eta-squared/epsilon-squared), by model and sample size.")
+agg_table(study1b,
+          cbind(power_gap_eta2, power_gap_eps2) ~ model_label + N,
+          c("Mean Power Gap (Eta2)", "Mean Power Gap (Epsilon2)"),
+          digits = 3,
+          caption = "Mean |simulated - closed-form| power for eta-squared and epsilon-squared, collapsed across population eta-squared (data underlying Figure 4).")
 ```
 
 ### Study 2: required sample size (data underlying Figure 5)
