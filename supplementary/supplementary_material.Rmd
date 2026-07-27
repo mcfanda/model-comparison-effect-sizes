@@ -44,7 +44,8 @@ long_table <- function(data, cols, names, order_cols, digits, caption) {
   tab <- data[do.call(order, data[, c("Model", order_cols)]), c("Model", cols)]
   colnames(tab) <- c("Model", names)
   rownames(tab) <- NULL
-  kbl(tab, digits = digits, booktabs = TRUE, longtable = TRUE, caption = caption) %>%
+  kbl(tab, digits = digits, booktabs = TRUE, longtable = TRUE, caption = caption,
+      linesep = c(rep("", 7), "\\addlinespace")) %>%
     kable_styling(latex_options = c("repeat_header", "hold_position"), font_size = 8)
 }
 ```
