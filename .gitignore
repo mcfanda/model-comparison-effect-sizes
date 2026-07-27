@@ -1,0 +1,23 @@
+# R session state and command history (at any directory depth)
+.RData
+.RData.*
+.Rdata
+.Rdata.*
+.Rhistory
+.Rhistory.*
+.Rapp.history
+.Ruserdata
+.RDataTmp
+
+# RStudio per-user state
+.Rproj.user/
+
+# Local R credentials/environment
+.Renviron
+.httr-oauth
+
+# Transient R output
+Rplots.pdf
+*.Rout
+*.Rout.save
+.Rproj.user
