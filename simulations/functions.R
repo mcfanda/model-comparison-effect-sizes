@@ -1,3 +1,7 @@
+# display labels for each type of model
+model_labels <- c(gaussian = "Gaussian", logistic = "Logistic",
+                   multinomial = "Multinomial", ordinal = "Ordinal")
+
 # compute the expected probabilities for each type of model
 
 prob_for_model <- function(model) {

@@ -88,7 +88,7 @@ find_n <- function(eta2, k, model, rho = 0,search_rep=10) {
   data.frame(N=N, Nt=Nt)
 }
 # test
-#find_n(r2, k, model, rho = 0,search_rep = 1000) 
+#find_n(eta2, k, model, rho = 0,search_rep = 1000)
 
 runner<-Rsimcity::Runner$new("required N")
 runner$parallel=FALSE

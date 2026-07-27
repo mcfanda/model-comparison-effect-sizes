@@ -44,10 +44,6 @@ one_model<-function(r2, N,  k, model, rho=.0) {
       res<-gzlmpower::r2(mod,test=T)
       data.frame(r2=r2,N=N,k=k,model=model,er2=res$r2,aer2=res$r2adj, test=res$test,p=res$p)
 }
-r2<-.2
-model<-"multinomial"
-k<-3
-
 future::plan(future::multisession)
 
 ### set search_rep=1000 for production

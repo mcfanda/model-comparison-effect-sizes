@@ -71,4 +71,4 @@ runner$design<-list(eta2=seq(.025,.4,.025),N=c(25,50,75,100),k=3,model=c("gaussi
 
 results<-runner$experiment(Rep=5000)
 
-save(results,file="Data/study1.b.data.Rdata")
+save(results,file=here::here("simulations/Data/study1.b.data.Rdata"))

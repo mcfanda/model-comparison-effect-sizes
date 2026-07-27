@@ -6,8 +6,7 @@
 library(ggplot2)
 library(patchwork)
 
-model_labels <- c(gaussian = "Gaussian", logistic = "Logistic",
-                   multinomial = "Multinomial", ordinal = "Ordinal")
+source("simulations/functions.R")   # model_labels
 
 ## ------------------------------------------------------------------------
 ## Reshape a wide data frame into long form 
