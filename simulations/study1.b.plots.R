@@ -44,7 +44,7 @@ figure2 <- stack_by_model(acc_long, "eta2", "value", fig2_colors, "Index",
                            ref_line = TRUE,
                            legend_labels = expression(eta^2, epsilon^2))
 figure2
-ggsave("paper/Submission3/figure2.jpg", figure2,
+ggsave("../paper/Submission3/figure2.jpg", figure2,
        width = 8, height = 8, dpi = 300)
 
 ## ------------------------------------------------------------------------
@@ -65,6 +65,6 @@ figure4 <- stack_by_model(pow_long, "eta2", "value", fig4_colors, "Method",
                            ref_line = FALSE,
                            legend_labels = expression("Actual", epsilon^2, eta^2))
 figure4
-ggsave("paper/Submission3/figure4.jpg", figure4,
+ggsave("../paper/Submission3/figure4.jpg", figure4,
        width = 8, height = 8, dpi = 300)
 

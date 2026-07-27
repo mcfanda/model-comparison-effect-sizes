@@ -62,4 +62,4 @@ figure5 <- wrap_plots(panels, ncol = 2, byrow = FALSE) +
   theme(legend.position = "bottom")
 figure5
 
-ggsave("paper/Submission3/figure5.jpg", figure5, width = 10, height = 9, dpi = 300)
+ggsave("../paper/Submission3/figure5.jpg", figure5, width = 10, height = 9, dpi = 300)

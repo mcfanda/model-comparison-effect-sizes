@@ -28,7 +28,7 @@ figure1 <- stack_by_model(acc_long, "r2", "value", fig1_colors, "Index",
                            ref_line = TRUE,
                            legend_labels = expression(R^2, R[adj]^2))
 figure1
-ggsave("paper/Submission3/figure1.jpg", figure1,
+ggsave("../paper/Submission3/figure1.jpg", figure1,
        width = 8, height = 10, dpi = 300)
 
 ## ------------------------------------------------------------------------
@@ -48,5 +48,5 @@ figure3 <- stack_by_model(pow_long, "r2", "value", fig3_colors, "Method",
                            ref_line = FALSE,
                            legend_labels = expression("Actual", R[adj]^2, R^2))
 figure3
-ggsave("paper/Submission3/figure3.jpg", figure3,
+ggsave("../paper/Submission3/figure3.jpg", figure3,
        width = 8, height = 10, dpi = 300)
