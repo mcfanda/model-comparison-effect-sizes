@@ -2,15 +2,13 @@
   library(patchwork)
   library(gzlmpower)
 
-load(file = "simulations/Data/study1.b.data.Rdata")   # -> `results`
-source("simulations/functions.R")
-source("simulations/plot_helpers.R")   # to_long(), stack_by_model(), row_theme, model_labels
-
+load(file = here::here("github/simulations/Data/study1.b.data.Rdata"))   # -> `results`
+source(here::here("github/simulations/plot_helpers.R"))   
 ## ------------------------------------------------------------------------
 ## Closed-form ("theoretical") power for each design cell, computed by
 ## plugging the cell's own MEAN raw estimate (eeta2) or MEAN adjusted estimate
 ## (aeeta2) into the power formula for the focal predictor's own test df
-## (1, or yl-1=2 for multinomial -- see focal_df() in functions.R),
+## (1, or yl-1=2 for multinomial -- see focal_df() in theoretical_power.R),
 ## not the whole model's df as in Study 1a. Compared against the "Actual"
 ## column already in `results` (the empirical proportion of significant
 ## per-predictor LR tests).
@@ -34,18 +32,20 @@ results$model_label <- factor(model_labels[results$model], levels = model_labels
 ## ------------------------------------------------------------------------
 
 acc_long <- to_long(results, c(eeta2 = "Eta2", aeeta2 = "adj Eta2"),
-                     id_cols = c("model_label", "N", "eta2"))
+                     id_cols = c("model_label", "N", "eta2", "k"))
 acc_long$Index <- factor(acc_long$Index, levels = c("Eta2", "adj Eta2"))
+acc_long$k <- factor(acc_long$k, levels = c(3, 5))
 
-fig2_colors <- c("Eta2" = "#F8766D", "adj Eta2" = "#00BFC4")
+fig2_colors    <- c("Eta2" = "#F8766D", "adj Eta2" = "#00BFC4")
+fig2_linetypes <- c("3" = "solid", "5" = "dashed")
 
-figure2 <- stack_by_model(acc_long, "eta2", "value", fig2_colors, "Index",
-                           y_lab = "Index value", x_lab = expression(paste("Population ", eta^2)),
-                           ref_line = TRUE,
-                           legend_labels = expression(eta^2, epsilon^2))
+figure2 <- stack_by_model_k(acc_long, "eta2", "value", fig2_colors, fig2_linetypes,
+                             y_lab = "Index value", x_lab = expression(paste("Population ", eta^2)),
+                             ref_line = TRUE,
+                             color_labels = expression(eta^2, epsilon^2))
 figure2
-ggsave("../paper/Submission3/figure2.jpg", figure2,
-       width = 8, height = 8, dpi = 300)
+ggsave(here::here("paper/Submission3/figure2.jpg"), figure2,
+       width = 8, height = 10, dpi = 300)
 
 ## ------------------------------------------------------------------------
 ## Figure 4 (power): actual simulated power (for the focal predictor's own
@@ -54,17 +54,20 @@ ggsave("../paper/Submission3/figure2.jpg", figure2,
 ## ------------------------------------------------------------------------
 
 pow_long <- to_long(results, c(power = "Actual", power_eta2 = "Eta2", power_adjeta2 = "adj Eta2"),
-                     id_cols = c("model_label", "N", "eta2"))
+                     id_cols = c("model_label", "N", "eta2", "k"))
 pow_long$Index <- factor(pow_long$Index, levels = c("Actual", "adj Eta2", "Eta2"))
+pow_long$k <- factor(pow_long$k, levels = c(3, 5))
 
-fig4_colors <- c("Actual" = "black", "adj Eta2" = "#00BFC4", "Eta2" = "#F8766D")
+fig4_colors    <- c("Actual" = "black", "adj Eta2" = "#00BFC4", "Eta2" = "#F8766D")
+fig4_linetypes <- c("3" = "solid", "5" = "dashed")
 
-figure4 <- stack_by_model(pow_long, "eta2", "value", fig4_colors, "Method",
-                           y_lab = expression(paste("Power (", 1 - beta, ")")),
-                           x_lab = expression(paste("Population ", eta^2)),
-                           ref_line = FALSE,
-                           legend_labels = expression("Actual", epsilon^2, eta^2))
+figure4 <- stack_by_model_k(pow_long, "eta2", "value", fig4_colors, fig4_linetypes,
+                             y_lab = expression(paste("Power (", 1 - beta, ")")),
+                             x_lab = expression(paste("Population ", eta^2)),
+                             ref_line = FALSE,
+                             color_legend = "Method",
+                             color_labels = expression("Actual", epsilon^2, eta^2))
 figure4
-ggsave("../paper/Submission3/figure4.jpg", figure4,
-       width = 8, height = 8, dpi = 300)
+ggsave(here::here("paper/Submission3/figure4.jpg"), figure4,
+       width = 8, height = 10, dpi = 300)
 

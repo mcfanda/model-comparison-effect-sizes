@@ -1,6 +1,6 @@
 # display labels for each type of model
-model_labels <- c(gaussian = "Gaussian", logistic = "Logistic",
-                   multinomial = "Multinomial", ordinal = "Ordinal")
+model_labels <- c(logistic = "Logistic", multinomial = "Multinomial",
+                   ordinal = "Ordinal", gaussian = "Gaussian")
 
 # compute the expected probabilities for each type of model
 

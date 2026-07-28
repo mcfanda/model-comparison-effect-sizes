@@ -1,0 +1,135 @@
+---
+title: "Supplementary tables for the article \"Model-comparison effect size indices
+  for logistic and other generalized linear models: Computation and power analysis\""
+output:
+  pdf_document: default
+  html_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Simulation results tables
+
+The figures in the main text plot the results of Study 1 (recovery of the whole-model
+R^2^ and of a single focal predictor's eta-squared) and Study 2 (simulation-based
+required sample size). For Study 1, each Model x N x k combination in the figures is a
+curve over 10 population effect size values; the tables below summarize accuracy and
+power collapsed across those population effect size values only (mean absolute bias,
+RMSE, and mean power gap, by model, sample size, and number of covariates k), keeping
+the k = 3 vs. k = 5 conditions separate rather than averaging over them, so the full
+crossed design is preserved -- the full per-point results are available in this
+repository's `simulations/Data/` folder. For Study 2, which has no sample-size or k
+dimension, the tables report the full underlying data.
+
+```{r results-setup, include=FALSE}
+library(kableExtra)
+source("../simulations/functions.R")   # theoretical_power(), focal_df(), model_labels
+
+load("../simulations/Data/study1.a.data.Rdata")   # -> `results` (Study 1a, R^2 design)
+study1a <- results
+
+load("../simulations/Data/study1.b.data.Rdata")   # -> `results` (Study 1b, eta^2 design)
+study1b <- results
+
+e <- new.env(); load("../simulations/Data/study2.a.data.Rdata", envir = e); study2a <- e$results
+e <- new.env(); load("../simulations/Data/study2.b.data.Rdata", envir = e); study2b <- e$results
+
+study1a$power_r2    <- mapply(theoretical_power, study1a$er2,  study1a$N, study1a$k, study1a$model)
+study1a$power_adjr2 <- mapply(theoretical_power, study1a$aer2, study1a$N, study1a$k, study1a$model)
+
+study1b$df_test <- sapply(study1b$model, focal_df)
+suppressMessages({
+  study1b$power_eta2    <- mapply(theoretical_power, study1b$eeta2,  study1b$N, study1b$k, study1b$model, study1b$df_test)
+  study1b$power_adjeta2 <- mapply(theoretical_power, study1b$aeeta2, study1b$N, study1b$k, study1b$model, study1b$df_test)
+})
+
+long_table <- function(data, cols, names, order_cols, digits, caption) {
+  data$Model <- factor(model_labels[data$model], levels = model_labels)
+  tab <- data[do.call(order, data[, c("Model", order_cols)]), c("Model", cols)]
+  colnames(tab) <- c("Model", names)
+  rownames(tab) <- NULL
+  kbl(tab, digits = digits, booktabs = TRUE, longtable = TRUE, caption = caption,
+      linesep = c(rep("", 7), "\\addlinespace")) %>%
+    kable_styling(latex_options = c("repeat_header", "hold_position"), font_size = 8)
+}
+
+## Collapse a Study 1 data set across its 10 population-effect-size values only, giving
+## one row per Model x N x k cell -- 32 rows total, vs. 320 in the full per-point data.
+## k is kept as its own column (not averaged over), so the full crossed design shows.
+agg_table <- function(data, formula, names, digits, caption) {
+  data$model_label <- factor(model_labels[data$model], levels = model_labels)
+  tab <- aggregate(formula, data = data, FUN = mean)
+  tab <- tab[order(tab$model_label, tab$N, tab$k), ]
+  colnames(tab) <- c("Model", "N", "k", names)
+  rownames(tab) <- NULL
+  kbl(tab, digits = digits, booktabs = TRUE, longtable = TRUE, caption = caption,
+      linesep = c(rep("", 7), "\\addlinespace")) %>%
+    kable_styling(latex_options = c("repeat_header", "hold_position"), font_size = 9)
+}
+
+study1a$power_gap_r2    <- abs(study1a$power_r2    - study1a$power)
+study1a$power_gap_adjr2 <- abs(study1a$power_adjr2 - study1a$power)
+
+study1b$power_gap_eta2 <- abs(study1b$power_eta2    - study1b$power)
+study1b$power_gap_eps2 <- abs(study1b$power_adjeta2 - study1b$power)
+```
+
+### Study 1a: accuracy of R^2^ (collapsed summary of Figure 1)
+
+```{r table-figure1, echo=FALSE}
+agg_table(study1a,
+          cbind(abs_bias_r2 = abs(bias), rmse_r2 = rmse,
+                abs_bias_adjr2 = abs(abias), rmse_adjr2 = armse) ~ model_label + N + k,
+          c("Mean |Bias| (R2)", "RMSE (R2)", "Mean |Bias| (Adjusted R2)", "RMSE (Adjusted R2)"),
+          digits = 3,
+          caption = "Accuracy of R2 and adjusted R2, by model, N, and number of covariates k, collapsed across population R2 (data underlying Figure 1).")
+```
+
+### Study 1a: power of the omnibus test (collapsed summary of Figure 3)
+
+```{r table-figure3, echo=FALSE}
+agg_table(study1a,
+          cbind(power_gap_r2, power_gap_adjr2) ~ model_label + N + k,
+          c("Mean Power Gap (R2)", "Mean Power Gap (Adjusted R2)"),
+          digits = 3,
+          caption = "Mean |simulated - closed-form| power for R2 and adjusted R2, by model, N, and number of covariates k, collapsed across population R2 (data underlying Figure 3).")
+```
+
+### Study 1b: accuracy of eta-squared (collapsed summary of Figure 2)
+
+```{r table-figure2, echo=FALSE}
+agg_table(study1b,
+          cbind(abs_bias_eta2 = abs(bias), rmse_eta2 = rmse,
+                abs_bias_eps2 = abs(abias), rmse_eps2 = armse) ~ model_label + N + k,
+          c("Mean |Bias| (Eta2)", "RMSE (Eta2)", "Mean |Bias| (Epsilon2)", "RMSE (Epsilon2)"),
+          digits = 3,
+          caption = "Accuracy of eta-squared and adjusted epsilon-squared, by model, N, and number of covariates k, collapsed across population eta-squared (data underlying Figure 2).")
+```
+
+### Study 1b: power of the single-predictor test (collapsed summary of Figure 4)
+
+```{r table-figure4, echo=FALSE}
+agg_table(study1b,
+          cbind(power_gap_eta2, power_gap_eps2) ~ model_label + N + k,
+          c("Mean Power Gap (Eta2)", "Mean Power Gap (Epsilon2)"),
+          digits = 3,
+          caption = "Mean |simulated - closed-form| power for eta-squared and epsilon-squared, by model, N, and number of covariates k, collapsed across population eta-squared (data underlying Figure 4).")
+```
+
+### Study 2: required sample size (data underlying Figure 5)
+
+```{r table-figure5-omnibus, echo=FALSE}
+long_table(study2a, c("r2", "N", "Nt"),
+           c("Population R2", "Required N (Simulated)", "Required N (Closed-form)"),
+           order_cols = "r2", digits = 3,
+           caption = "Required sample size for 80\\% power, omnibus test: simulated vs. closed-form.")
+```
+
+```{r table-figure5-individual, echo=FALSE}
+long_table(study2b, c("eta2", "N", "Nt"),
+           c("Population Eta2", "Required N (Simulated)", "Required N (Closed-form)"),
+           order_cols = "eta2", digits = 3,
+           caption = "Required sample size for 80\\% power, single-predictor test: simulated vs. closed-form.")
+```

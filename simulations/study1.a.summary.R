@@ -1,7 +1,7 @@
 suppressMessages(library(gzlmpower))
 
-load(file = "simulations/Data/study1.a.data.Rdata")   # -> `results`
-source("simulations/functions.R")   # model_labels
+load(file = here::here("github/simulations/Data/study1.a.data.Rdata"))   # -> `results`
+source(here::here("github/simulations/functions.R"))   # model_labels
 
 results$model_label <- factor(model_labels[results$model], levels = model_labels)
 
@@ -46,12 +46,12 @@ conv_summary <- conv_totals[order(conv_totals$model_label, conv_totals$N),
                              c("model_label", "N", "pct_excluded")]
 rownames(conv_summary) <- NULL
 
-## the flagged cell (multinomial, N=25) reported by R^2 range, for the footnote
-mult25 <- results[results$model == "multinomial" & results$N == 25, ]
-mult25 <- mult25[order(mult25$r2), ]
-mult25_pct <- 100 * mult25$n_fail / (mult25$n_ok + mult25$n_fail)
-mult25_excl_range <- range(mult25_pct)
-mult25_excl_mean  <- mean(mult25_pct)
+## the flagged cell (multinomial, N=30) reported by R^2 range, for the footnote
+mult30 <- results[results$model == "multinomial" & results$N == 30, ]
+mult30 <- mult30[order(mult30$r2), ]
+mult30_pct <- 100 * mult30$n_fail / (mult30$n_ok + mult30$n_fail)
+mult30_excl_range <- range(mult30_pct)
+mult30_excl_mean  <- mean(mult30_pct)
 
 ## ------------------------------------------------------------------------
 ## Save everything the manuscript needs, plus the full per-cell table for
@@ -59,10 +59,10 @@ mult25_excl_mean  <- mean(mult25_pct)
 ## ------------------------------------------------------------------------
 
 save(acc_summary, power_summary, power_gap_overall, power_gap_worst_row,
-     conv_summary, mult25_excl_range, mult25_excl_mean, results,
-     file = "simulations/Data/study1.a.summary.Rdata")
+     conv_summary, mult30_excl_range, mult30_excl_mean, results,
+     file = "github/simulations/Data/study1.a.summary.Rdata")
 
-write.csv(results, "simulations/Data/study1.a.full_results.csv", row.names = FALSE)
+write.csv(results, "github/simulations/Data/study1.a.full_results.csv", row.names = FALSE)
 
 cat("Accuracy summary (mean |bias| and RMSE, collapsed over R^2):\n")
 print(acc_summary, digits = 3)
@@ -73,7 +73,7 @@ cat("overall mean gap:", round(power_gap_overall, 3), "\n")
 
 cat("\nExclusion rate (%), collapsed over R^2:\n")
 print(conv_summary, digits = 3)
-cat("multinomial, N=25, exclusion rate across R^2: ",
-    round(mult25_excl_range[1]), "% to ", round(mult25_excl_range[2]),
-    "% (mean ", round(mult25_excl_mean), "%)\n", sep = "")
+cat("multinomial, N=30, exclusion rate across R^2: ",
+    round(mult30_excl_range[1]), "% to ", round(mult30_excl_range[2]),
+    "% (mean ", round(mult30_excl_mean), "%)\n", sep = "")
 

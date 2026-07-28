@@ -60,8 +60,7 @@ runner$par_method="multicore"
 runner$step<-one_model
 runner$params<-list(rho=.3)
 runner$aggregate<-agg_fun
-runner$design<-list(r2=seq(.025,.4,.025),N=c(25,50,75,100),k=3,model=c("gaussian", "logistic","multinomial","ordinal"))
-#runner$design<-list(r2=c(.025),N=c(5),k=1,model=c("logistic"))
+runner$design<-list(r2=seq(.03,.3,.03),N=c(30,60,90,120),k=c(3,5),model=c("gaussian", "logistic","multinomial","ordinal"))
 
 results<-runner$experiment(Rep=5000)
 

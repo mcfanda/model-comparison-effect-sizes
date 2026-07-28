@@ -5,7 +5,7 @@ if (!require(gzlmpower)) remotes::install_github("mcfanda/gzlmpower")
 ### only the first predictor carries the true effect; the remaining k-1 predictors are
 ### rho-correlated nuisance predictors -- same population design as before, expressed in
 ### Rsimcity::sample_by_eta2()'s more general (beta/x_cov) interface
-source(here::here("simulations/functions.R"))
+source(here::here("github/simulations/functions.R"))
 
 ### generate a sample given Eta-squared
 one_model<-function(eta2, N,  k, model, rho=.0) {
@@ -65,10 +65,16 @@ runner<-Rsimcity::Runner$new("eta")
 runner$parallel=TRUE
 runner$par_method="multicore"
 runner$step<-one_model
-runner$params<-list(rho=.3)
 runner$aggregate<-agg_fun
-runner$design<-list(eta2=seq(.03,.3,.03),N=c(30,60,90,120),k=c(3,5),model=c("gaussian", "logistic","multinomial","ordinal"))
+runner$design<-list(eta2=seq(.03,.3,.03),N=c(30,60,90,120),k=c(3,5,7),model=c("gaussian"),rho=c(.3))
 
-results<-runner$experiment(Rep=5000)
+results<-runner$experiment(Rep=1000)
+head(results)
 
-save(results,file=here::here("simulations/Data/study1.b.data.Rdata"))
+p<-Rsimcity::plot_by_splits(xvar="eta2",yvar="eeta2",splits=c("N","k"),data=results) 
+p+ggplot2::theme_bw(base_size = 11) +
+  ggplot2::theme(strip.background = ggplot2::element_rect(fill = "white"),
+        panel.grid.minor = ggplot2::element_blank(),
+        legend.position = "bottom")
+
+save(results,file=here::here("github/simulations/checks/study1.b.check2.data.Rdata"))
