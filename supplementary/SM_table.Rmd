@@ -16,8 +16,9 @@ The figures in the main text plot the results of Study 1 (recovery of the whole-
 R^2^ and of a single focal predictor's eta-squared) and Study 2 (simulation-based
 required sample size). For Study 1, each Model x N x k combination in the figures is a
 curve over 10 population effect size values; the tables below summarize accuracy and
-power collapsed across those population effect size values only (mean absolute bias,
-RMSE, and mean power gap, by model, sample size, and number of covariates k), keeping
+power collapsed across those population effect size values only (mean signed bias, mean
+absolute bias, RMSE, and mean power gap, by model, sample size, and number of covariates
+k), keeping
 the k = 3 vs. k = 5 conditions separate rather than averaging over them, so the full
 crossed design is preserved -- the full per-point results are available in this
 repository's `simulations/Data/` folder. For Study 2, which has no sample-size or k
@@ -80,11 +81,12 @@ study1b$power_gap_eps2 <- abs(study1b$power_adjeta2 - study1b$power)
 
 ```{r table-figure1, echo=FALSE}
 agg_table(study1a,
-          cbind(abs_bias_r2 = abs(bias), rmse_r2 = rmse,
-                abs_bias_adjr2 = abs(abias), rmse_adjr2 = armse) ~ model_label + N + k,
-          c("Mean |Bias| (R2)", "RMSE (R2)", "Mean |Bias| (Adjusted R2)", "RMSE (Adjusted R2)"),
+          cbind(bias_r2 = bias, abs_bias_r2 = abs(bias), rmse_r2 = rmse,
+                bias_adjr2 = abias, abs_bias_adjr2 = abs(abias), rmse_adjr2 = armse) ~ model_label + N + k,
+          c("Bias (R2)", "Mean |Bias| (R2)", "RMSE (R2)",
+            "Bias (Adjusted R2)", "Mean |Bias| (Adjusted R2)", "RMSE (Adjusted R2)"),
           digits = 3,
-          caption = "Accuracy of R2 and adjusted R2, by model, N, and number of covariates k, collapsed across population R2 (data underlying Figure 1).")
+          caption = "Accuracy of R2 and adjusted R2, by model, N, and number of covariates k, collapsed across population R2 (data underlying Figure 1). Bias columns report the mean signed bias, so the direction of the deviation is preserved.")
 ```
 
 ### Study 1a: power of the omnibus test (collapsed summary of Figure 3)
@@ -101,11 +103,12 @@ agg_table(study1a,
 
 ```{r table-figure2, echo=FALSE}
 agg_table(study1b,
-          cbind(abs_bias_eta2 = abs(bias), rmse_eta2 = rmse,
-                abs_bias_eps2 = abs(abias), rmse_eps2 = armse) ~ model_label + N + k,
-          c("Mean |Bias| (Eta2)", "RMSE (Eta2)", "Mean |Bias| (Epsilon2)", "RMSE (Epsilon2)"),
+          cbind(bias_eta2 = bias, abs_bias_eta2 = abs(bias), rmse_eta2 = rmse,
+                bias_eps2 = abias, abs_bias_eps2 = abs(abias), rmse_eps2 = armse) ~ model_label + N + k,
+          c("Bias (Eta2)", "Mean |Bias| (Eta2)", "RMSE (Eta2)",
+            "Bias (Epsilon2)", "Mean |Bias| (Epsilon2)", "RMSE (Epsilon2)"),
           digits = 3,
-          caption = "Accuracy of eta-squared and adjusted epsilon-squared, by model, N, and number of covariates k, collapsed across population eta-squared (data underlying Figure 2).")
+          caption = "Accuracy of eta-squared and adjusted epsilon-squared, by model, N, and number of covariates k, collapsed across population eta-squared (data underlying Figure 2). Bias columns report the mean signed bias, so the direction of the deviation is preserved. Because the sign of the epsilon-squared bias reverses across effect sizes for some models (see main text), collapsed signed values can be close to zero; per-effect-size values are available in the repository's simulations/Data folder.")
 ```
 
 ### Study 1b: power of the single-predictor test (collapsed summary of Figure 4)

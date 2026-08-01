@@ -85,7 +85,7 @@ find_n <- function(eta2, k, model, rho = 0,search_rep=10) {
     }
     N<-N+1
   }
-  data.frame(N=N, Nt=Nt)
+  data.frame(N=N, Nt=Nt) # Nt=estimated closed-form , N=simulations results
 }
 # test
 #find_n(eta2, k, model, rho = 0,search_rep = 1000)

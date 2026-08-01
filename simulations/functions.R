@@ -12,13 +12,13 @@ prob_for_model <- function(model) {
          NULL)
 }
 # prepare betas for each type of model
-make_beta<-function(model, k, yl=3) {
+make_beta<-function(model, k, yl=3, others=0) {
   if (model=="multinomial") {
     B<-matrix(0,nrow=k,ncol=yl-1)
     B[1,]<-1
     B
   } else {
-    b<-rep(0,k)
+    b<-rep(others,k)
     b[1]<-1
     b
   }

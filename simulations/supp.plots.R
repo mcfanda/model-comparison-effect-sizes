@@ -2,7 +2,7 @@
   library(patchwork)
   library(gzlmpower)
 
-load(file = here::here("github/simulations/Data/study1.b.data.Rdata"))   # -> `results`
+load(file = here::here("github/simulations/Data/study1.b.supp.data.Rdata"))   # -> `results`
 source(here::here("github/simulations/plot_helpers.R"))   
 ## ------------------------------------------------------------------------
 ## Closed-form ("theoretical") power for each design cell, computed by
@@ -31,21 +31,25 @@ results$model_label <- factor(model_labels[results$model], levels = model_labels
 ## population eta^2, with the identity line marking perfect recovery.
 ## ------------------------------------------------------------------------
 
-acc_long <- to_long(results, c(eeta2 = "Eta2", aeeta2 = "adj Eta2"),
-                     id_cols = c("model_label", "N", "eta2", "k"))
-acc_long$Index <- factor(acc_long$Index, levels = c("Eta2", "adj Eta2"))
-acc_long$k <- factor(acc_long$k, levels = c(3, 5))
+figure<-Rsimcity::plot_by_splits(acc_long,xvar="eta2",yvar="value",zvar="Index",splits=c("N","model_label") ,
+                         title = c("Logistic","Multinomial","Ordinal","Gaussian"), titles = "top",
+                         ylabel="Index value",
+                         xlabel = expression(paste("Population ", eta^2)))
 
-fig2_colors    <- c("Eta2" = "#F8766D", "adj Eta2" = "#00BFC4")
-fig2_linetypes <- c("3" = "solid", "5" = "dashed")
+figure <- figure + ggplot2::geom_abline(intercept = 0, slope = 1)
+figure <- figure +ggplot2::theme( plot.title = ggplot2::element_text(size = 11))
+figure <- figure + ggplot2::theme(
+  plot.title = ggplot2::element_text(size = 13),
+  strip.text.x = ggplot2::element_text(size = 10)
+)
+figure <- figure + ggplot2::theme(
+  panel.spacing.y = grid::unit(10, "pt")
+)
 
-figure2 <- stack_by_model_k(acc_long, "eta2", "value", fig2_colors, fig2_linetypes,
-                             y_lab = "Index value", x_lab = expression(paste("Population ", eta^2)),
-                             ref_line = TRUE,
-                             color_labels = expression(eta^2, epsilon^2))
-figure2
-ggsave(here::here("paper/Submission3/figure2.jpg"), figure2,
+figure
+ggplot2::ggsave(here::here("github/supplementary/figure_sup_1.jpg"), figure,
        width = 8, height = 10, dpi = 300)
+
 
 ## ------------------------------------------------------------------------
 ## Figure 4 (power): actual simulated power (for the focal predictor's own
@@ -66,7 +70,7 @@ figure4 <- stack_by_model_k(pow_long, "eta2", "value", fig4_colors, fig4_linetyp
                              x_lab = expression(paste("Population ", eta^2)),
                              ref_line = FALSE,
                              color_legend = "Method",
-                             color_labels = expression("Actual", epsilon^2, eta^2))
+                             color_labels =
 figure4
 ggsave(here::here("paper/Submission3/figure4.jpg"), figure4,
        width = 8, height = 10, dpi = 300)
