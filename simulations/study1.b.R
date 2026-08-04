@@ -40,7 +40,7 @@ one_model<-function(eta2, N,  k, model, rho=.0) {
       p<-anov["x1",pcol]
       value<-res[1,1]
       avalue<-res[1,2]
-     data.frame(eta2=eta2,N=N,k=k,model=model,eeta2=value,aeeta2=avalue, p=p)
+     data.frame(eta2=eta2,N=N,k=k,model=model,eeta2=value,aeeta2=avalue, p=p, trunc=(avalue<0))
 }
 
 agg_fun<-function(data) {
@@ -54,9 +54,10 @@ agg_fun<-function(data) {
    abias<-mean(aeeta2-eta2)
    armse<-sqrt(mean((aeeta2-eta2)^2))
    power<-mean(as.numeric(data$p<.05))
+   ptrunc<-mean(as.numeric(data$trunc))
    n_ok<-nrow(data)
    n_fail<-length(attr(data,"fail"))
-   data.frame(eeta2=meeta2,aeeta2=maeeta2,bias=bias,rmse=rmse,abias=abias,armse=armse,power=power,n_ok=n_ok,n_fail=n_fail)
+   data.frame(eeta2=meeta2,aeeta2=maeeta2,bias=bias,rmse=rmse,abias=abias,armse=armse,power=power,n_ok=n_ok,n_fail=n_fail,p_trunc=ptrunc)
   
 }
 
@@ -67,7 +68,7 @@ runner$par_method="multicore"
 runner$step<-one_model
 runner$params<-list(rho=.3)
 runner$aggregate<-agg_fun
-runner$design<-list(eta2=seq(.03,.3,.03),N=c(30,60,90,120),k=c(3,5),model=c("gaussian", "logistic","multinomial","ordinal"))
+runner$design<-list(eta2=seq(0,.3,.03),N=c(30,60,90,120),k=c(3,5),model=c("gaussian", "logistic","multinomial","ordinal"))
 
 results<-runner$experiment(Rep=5000)
 

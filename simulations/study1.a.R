@@ -1,6 +1,6 @@
 ### get the required packages
-if (!require(Rsimcity)) remotes::install_github("mcfanda/Rsimcity")
-if (!require(gzlmpower)) remotes::install_github("mcfanda/gzlmpower")
+library(Rsimcity)
+library(gzlmpower)
 
 source(here::here("simulations/functions.R"))
 ### only the first predictor carries the true effect; the remaining k-1 predictors are
@@ -28,13 +28,16 @@ one_model<-function(r2, N,  k, model, rho=.0) {
       }
       if (model %in% c("ordinal"))  {
         mod<-ordinal::clm(form,data=.data)
-        bad <- mod$convergence$code != 0 || any(abs(coef(mod)) > 10)
+        bad <- mod$convergence$code != 0 || any(abs(mod$beta) > 10)
       }
 
       if (bad) return(NULL)   # excluded: non-converged or separated fit, per paper criterion
 
-      res<-gzlmpower::r2(mod,test=T)
-      data.frame(r2=r2,N=N,k=k,model=model,er2=res$r2,aer2=res$r2adj, test=res$test,p=res$p)
+      res<-gzlmpower::r2(mod,test=T,ci=T)
+      data.frame(r2=r2,N=N,k=k,model=model,
+                 er2=res$indices$r2,aer2=res$indices$r2adj,
+                 cilo=res$ci$lower,ciup=res$ci$upper, 
+                 test=res$anova$test,p=res$anova$p,trunc=as.numeric((res$indices$r2adj < 0)))
 }
 
 agg_fun<-function(data) {
@@ -48,21 +51,36 @@ agg_fun<-function(data) {
    abias<-mean(aer2-r2)
    armse<-sqrt(mean((aer2-r2)^2))
    power<-mean(as.numeric(data$p<.05))
+   ptrunc<-mean(as.numeric(data$trunc))
+   covered <- mean(as.numeric((data$cilo <= r2) & (r2 <= data$ciup)))
    n_ok<-nrow(data)
    n_fail<-length(attr(data,"fail"))
-   data.frame(er2=mer2,aer2=maer2,bias=bias,rmse=rmse,abias=abias,armse=armse,power=power,n_ok=n_ok,n_fail=n_fail)
-
+   miss_lo <- mean(data$ciup < r2)         
+   miss_hi <- mean(data$cilo >  r2)       
+   data.frame(er2=mer2,aer2=maer2,bias=bias,
+              rmse=rmse,abias=abias,armse=armse,
+              power=power,
+              n_ok=n_ok,n_fail=n_fail,p_trunc=ptrunc,
+              covered=covered,miss_lo=miss_lo,miss_hi=miss_hi)
+   
+   
 }
 
 runner<-Rsimcity::Runner$new("test")
 runner$parallel=TRUE
 runner$par_method="multicore"
 runner$step<-one_model
-runner$params<-list(rho=.3)
 runner$aggregate<-agg_fun
-runner$design<-list(r2=seq(.03,.3,.03),N=c(30,60,90,120),k=c(3,5),model=c("gaussian", "logistic","multinomial","ordinal"))
+
+##### use this to test the sim ########### 
+#runner$params<-list(rho=.3,r2=0,N=50,model="logistic",k=3)
+#runner$test_one()
+#runner$test_aggregates()
+######    ----   #########
+
+runner$params<-list(rho=.3)
+runner$design<-list(r2=seq(.0,.3,.03),N=c(30,60,90,120),k=c(3,5),model=c("gaussian", "logistic","multinomial","ordinal"))
 
 results<-runner$experiment(Rep=5000)
-
 save(results,file=here::here("simulations/Data/study1.a.data.Rdata"))
 

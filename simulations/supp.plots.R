@@ -33,7 +33,7 @@ results$model_label <- factor(model_labels[results$model], levels = model_labels
 ## with the identity line marking perfect recovery.
 ## ------------------------------------------------------------------------
 
-figure<-Rsimcity::plot_by_splits(results,xvar="eta2",yvar=c("eeta2","aeeta2"),zvar="k",splits=c("N","model_label") ,
+figure<-Rsimcity::plot_by_splits(results,xvar="eta2",yvar=c("eeta2","aeeta2"),splits=c("N","model_label") ,
                                  title = c("Logistic","Multinomial","Ordinal","Gaussian"), titles = "top",
                                  ylabel="Index value",
                                  xlabel = expression(paste("Population ", eta^2)),
@@ -60,9 +60,9 @@ ggsave(here::here("github/supplementary/figure_sup_1.jpg"), figure,
 ## curves obtained from ETA-SQUARED and EPSILON-SQUARED estimates.
 ## ------------------------------------------------------------------------
 
-figure<-Rsimcity::plot_by_splits(results,xvar="eta2",yvar=c("power", "power_eta2","power_adjeta2"),zvar="k",splits=c("N","model_label") ,
+figure<-Rsimcity::plot_by_splits(results,xvar="eta2",yvar=c("power", "power_eta2","power_adjeta2"),splits=c("N","model_label") ,
                                  title = c("Logistic","Multinomial","Ordinal","Gaussian"), titles = "top",
-                                 ylabel="Index value",
+                                 ylabel="Power",
                                  xlabel = expression(paste("Population ", eta^2)),
                                  color_labels = expression("Actual", eta^2,epsilon^2), color_label = "Index" 
 )

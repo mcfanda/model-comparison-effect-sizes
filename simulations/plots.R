@@ -41,7 +41,7 @@ figure <- figure + ggplot2::theme(
   panel.spacing.y = grid::unit(10, "pt")
 )
 figure
-figurggsave(here::here("paper/Submission3/figure1.jpg"), figure,
+ggsave(here::here("paper/Submission3/figure1.jpg"), figure,
        width = 8, height = 10, dpi = 300)
 
 
@@ -53,7 +53,7 @@ figurggsave(here::here("paper/Submission3/figure1.jpg"), figure,
 
 figure<-Rsimcity::plot_by_splits(results,xvar="r2",yvar=c("power","power_r2","power_adjr2"),zvar="k",splits=c("N","model_label") ,
                                  title = c("Logistic","Multinomial","Ordinal","Gaussian"), titles = "top",
-                                 ylabel="Index value",
+                                 ylabel="Power",
                                  xlabel = expression(paste("Population ", R^2)),
                                  color_label = "Index" 
 )
@@ -65,7 +65,7 @@ figure <- figure + ggplot2::theme(
 )
 
 figure
-figurggsave(here::here("paper/Submission3/figure3.jpg"), figure,
+ggsave(here::here("paper/Submission3/figure3.jpg"), figure,
             width = 8, height = 10, dpi = 300)
 
 
@@ -120,7 +120,7 @@ ggsave(here::here("paper/Submission3/figure2.jpg"), figure,
 
 figure<-Rsimcity::plot_by_splits(results,xvar="eta2",yvar=c("power", "power_eta2","power_adjeta2"),zvar="k",splits=c("N","model_label") ,
                                  title = c("Logistic","Multinomial","Ordinal","Gaussian"), titles = "top",
-                                 ylabel="Index value",
+                                 ylabel="Power",
                                  xlabel = expression(paste("Population ", eta^2)),
                                  color_labels = expression("Actual", eta^2,epsilon^2), color_label = "Index" 
 )
@@ -177,7 +177,7 @@ figures2<-lapply(model_levels,function(model_level) {
                                    xlabel = expression(paste("Population ", eta^2)),
                                    ylabel = "Required N", color_label = ""
   )
-  figure<- figure + ggtitle(paste(model_labels[model_level],"(omnibus test)"))
+  figure<- figure + ggtitle(paste(model_labels[model_level],"(individual predictor test)"))
   figure <- figure + ggplot2::scale_colour_manual(values = c("black", "#00BFC4"),labels =  expression("Actual", "Estimated"))
   figure <- figure + ggplot2::theme(
     plot.title = ggplot2::element_text(size = 13),

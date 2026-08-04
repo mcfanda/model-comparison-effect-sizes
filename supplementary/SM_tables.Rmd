@@ -114,14 +114,13 @@ agg_table(study1b,
 
 ## Supplementary simulation: nonzero effects for the other covariates
 
-In the $\eta^2$ simulations reported in the main text (Study 1b), the focal predictor was the only covariate with a nonzero population coefficient; the remaining $k-1$ covariates were correlated with it (r = .30) but had no true effect on the outcome. To check that this design choice does not flatter the indices -- with the nuisance coefficients at zero, the reduced model used to compute $\eta^2$ is close to the null model, so the deviance comparison underlying the index is not exercised in its more general, nontrivial form -- Study 1b was rerun with the $k-1$ nuisance covariates given a real, nonzero effect: half the magnitude of the focal predictor's coefficient: `Rsimcity::sample_by_eta2()` rescales the whole coefficient vector to hit the target $\eta^2$ for the focal predictor exactly, so this pattern preserves the intended population $\eta^2$ while making the covariates relevant to the outcome. Models, sample sizes, population $\eta^2$ values, covariate correlation, exclusion criteria, and the 5,000 replications per cell are identical to
-Study 1b; Since number of covariates did not influence the results, only $k=3$ was run in this supplementary simulation.
+In the $\eta^2$ simulations reported in the main text (Study 1b), the focal predictor was the only covariate with a nonzero population coefficient; the remaining $k-1$ covariates were correlated with it (r = .30) but had no true effect on the outcome. To check that this design choice does not flatter the indices, Study 1b was rerun with the $k-1$ nuisance covariates given a real, nonzero effect equal to half the magnitude of the focal predictor's coefficient. `Rsimcity::sample_by_eta2()` rescales the whole coefficient vector to hit the target $\eta^2$ for the focal predictor exactly, so this pattern preserves the intended population $\eta^2$ while making the covariates relevant to the outcome. The other simulation parameters -- models, sample sizes, population $\eta^2$ values, covariate correlation, exclusion criteria, and the 5,000 replications per cell -- are identical to Study 1b; since the number of covariates did not influence the results, only $k=3$ was run in this supplementary simulation.
 
 ```{r figure-sup1, echo=FALSE, fig.cap="Estimated eta-squared and adjusted epsilon-squared against the population eta-squared, in the supplementary simulation with nonzero nuisance-covariate effects. Black lines represent the population effect size value.", fig.height=10, fig.width=8, out.width="70%", fig.align='center'}
 knitr::include_graphics("figure_sup_1.jpg")
 ```
 
-```{r figure-sup2, echo=FALSE, fig.cap="Power estimates for the LR test of the focal predictor based on eta-squared and adjusted epsilon-squared, in the supplementary simulation with nonzero nuisance-covariate effects. Actual represents the empirical power computed in the simulated samples.", fig.height=10, fig.width=8, out.width="70%", fig.align='center'}
+```{r figure-sup2, echo=FALSE, fig.cap="Power estimates for the LR test of the focal predictor based on eta-squared and adjusted epsilon-squared, in the supplementary simulation with nonzero nuisance-covariate effects. Actual represents the empirical power computed in the simulated samples. Note that for the Gaussian benchmark the actual power exceeds the closed-form curves: with nonzero nuisance effects, GLM power depends on the partial effect size rather than eta-squared, so this departure is expected from classical theory (see the discussion following the tables), whereas the eta-squared-based formula remains accurate for the three generalized linear models.", fig.height=10, fig.width=8, out.width="70%", fig.align='center'}
 knitr::include_graphics("figure_sup_2.jpg")
 ```
 
@@ -147,6 +146,21 @@ cond_cols <- c("model", "N", "k", "bias", "abias", "rmse", "armse", "power_gap_e
 cond_data <- rbind(study1b_k3[, cond_cols], study1bsupp[, cond_cols])
 cond_data$model_label <- factor(model_labels[cond_data$model], levels = model_labels)
 cond_data$condition   <- factor(cond_data$condition, levels = c("Nuisance = 0", "Nuisance = .5x focal"))
+
+## Exclusion rates (per-cell % of replicates dropped) at N = 30, by model
+excl_pct <- function(d) 100 * d$n_fail / (d$n_fail + d$n_ok)
+supp30 <- study1bsupp[study1bsupp$N == 30, ]
+base30 <- study1b_k3[study1b_k3$N == 30, ]
+supp_excl_max <- tapply(excl_pct(supp30), supp30$model, max)
+base_excl_max <- tapply(excl_pct(base30), base30$model, max)
+
+## Power gaps separating the GzLM models from the Gaussian benchmark
+gzlm_models <- c("logistic", "multinomial", "ordinal")
+supp_gap_gzlm    <- mean(study1bsupp$power_gap_eps2[study1bsupp$model %in% gzlm_models])
+base_gap_gzlm    <- mean(study1b_k3$power_gap_eps2[study1b_k3$model %in% gzlm_models])
+supp_gap_gauss   <- mean(study1bsupp$power_gap_eps2[study1bsupp$model == "gaussian"])
+supp_gap_gauss30 <- mean(study1bsupp$power_gap_eps2[study1bsupp$model == "gaussian" & study1bsupp$N == 30])
+base_gap_gauss   <- mean(study1b_k3$power_gap_eps2[study1b_k3$model == "gaussian"])
 
 cond_table <- function(data, formula, names, digits, caption) {
   tab <- aggregate(formula, data = data, FUN = mean)
@@ -181,8 +195,9 @@ cond_table(cond_data,
            caption = "Mean |simulated - closed-form| power for eta-squared and epsilon-squared, by model and N, comparing the main-text condition (nuisance covariates with zero effect) against the supplementary condition (nuisance covariates at half the focal coefficient), collapsed across population eta-squared, k = 3 only.")
 ```
 
-Across every model and sample size, accuracy and power under the nonzero-nuisance condition are essentially unchanged from the main-text condition: mean absolute bias in $\eta^2$ and $\epsilon^2$ differs by at most a few thousandths, and the direction and approximate magnitude of the $\epsilon^2$ bias-correction pattern described in the main text is preserved. The mean power gap for $\epsilon^2$ is somewhat larger under nonzero nuisance effects (`r round(mean(study1bsupp$power_gap_eps2), 3)` vs.
-`r round(mean(study1b_k3$power_gap_eps2), 3)` in the main-text condition) but remains small in absolute terms. These results support treating the main-text $\eta^2$ simulation design as a reasonable proxy for the more general case in which the other covariates also have non-zero effects.
+Across every model and sample size, the *accuracy* of the indices under the nonzero-nuisance condition is essentially unchanged from the main-text condition: mean absolute bias in $\eta^2$ and $\epsilon^2$ differs by at most a few thousandths, and the direction and approximate magnitude of the $\epsilon^2$ pattern described in the main text is preserved. For *power*, the two model families must be distinguished. For the three generalized linear models, the closed-form power remains accurate (mean power gap for $\epsilon^2$ of `r round(supp_gap_gzlm, 3)`, vs. `r round(base_gap_gzlm, 3)` in the main-text condition), as the theory predicts: in the GzLM, the focal test's noncentrality parameter is $N D_0^{\prime} \eta^2$ regardless of the other predictors' strength. For the Gaussian benchmark, in contrast, the same formula is no longer exact once the other covariates carry real effects, because in the GLM the focal F-test's noncentrality depends on the partial effect size $p\eta^2 = \eta^2/(1-R^2_{m.x})$, which exceeds $\eta^2$ when the reduced model explains variance; the closed-form power computed from $\eta^2$ therefore underestimates the empirical power (mean gap `r round(supp_gap_gauss, 3)`, reaching `r round(supp_gap_gauss30, 3)` at $N = 30$, vs. `r round(base_gap_gauss, 3)` in the main-text condition). The Gaussian panels of the power figure thus display the expected classical GLM behavior -- mirroring the manuscript's argument for why the partial index is the practical choice for power analysis in the GLM whereas the semi-partial $\eta^2$ suffices in the GzLM -- rather than an inaccuracy of the method.
+
+A further consequence of giving the nuisance covariates real effects is that the full coefficient vector is larger at any given focal $\eta^2$, which makes complete or quasi-complete separation more frequent in the smallest samples. At $N = 30$, per-cell exclusion rates reached `r round(supp_excl_max["logistic"], 1)`% for the logistic model (vs. `r round(base_excl_max["logistic"], 1)`% in the main-text condition), `r round(supp_excl_max["ordinal"], 1)`% for the ordinal model (vs. `r round(base_excl_max["ordinal"], 1)`%), and `r round(supp_excl_max["multinomial"], 1)`% for the multinomial model (comparable to the `r round(base_excl_max["multinomial"], 1)`% of the main-text condition); exclusions essentially vanish from $N = 60$ onward. Results at $N = 30$ with large population $\eta^2$ are therefore conditional on obtaining an admissible fit, exactly as discussed for the multinomial cells in the main text. With these qualifications, the results support treating the main-text $\eta^2$ simulation design as a reasonable proxy for the more general case in which the other covariates also have nonzero effects.
 
 ### Study 2: required sample size (data underlying Figure 5)
 
