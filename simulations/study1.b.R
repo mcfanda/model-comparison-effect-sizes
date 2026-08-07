@@ -88,6 +88,6 @@ runner$aggregate<-agg_fun
 runner$params<-list(rho=.3)
 runner$design<-list(eta2=seq(0,.3,.03),N=c(30,60,90,120),k=c(3,5),model=c("gaussian", "logistic","multinomial","ordinal"))
 
-results<-runner$experiment(Rep=5000)
+results<-runner$experiment(Rep=50)
 
 save(results,file=here::here("simulations/Data/study1.b.data.Rdata"))
